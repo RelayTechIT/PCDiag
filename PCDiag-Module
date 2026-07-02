@@ -25,7 +25,7 @@ function PCDIAG-GetLocalProfileSize {
     $n=1
     foreach ($UserProfile in $GetUserProfiles) { 
         Write-Host "Profile $($n) of $($GetUserProfiles.count) - Getting profile size of $($UserProfile.LocalPath)"
-        $Bytes = (Get-ChildItem -Path $Profile.LocalPath -Recurse -File -ErrorAction SilentlyContinue | Measure-Object -Property Length -Sum).Sum
+        $Bytes = (Get-ChildItem -Path $UserProfile.LocalPath -Recurse -File -ErrorAction SilentlyContinue | Measure-Object -Property Length -Sum).Sum
         $LocalUserProfiles += @([PSCustomObject]@{
             LocalPath   = $UserProfile.LocalPath
             LastUsed    = $UserProfile.LastUseTime
