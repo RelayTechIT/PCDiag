@@ -18,6 +18,43 @@ function PCDiag-GetGDUSizeInBytes {
     return $bytes
 }
 
+function PCDiag-FindLargeFolders {
+    param(
+        $BaseDirectory,
+        $MinimumSizeGB = 1
+    )
+    if (-not (Test-Path $BaseDirectory -ea SilentlyContinue)) {
+        Write-Error "Path '$BaseDirectory' does not exist."
+        return
+    }
+    $results = @()
+    $SubFolders = Get-ChildItem -Path $BaseDirectory -Directory
+    foreach ($SubFolder in $SubFolders.FullName) {
+        
+        if ($SubFolder -eq "$($BaseDirectory)Windows") {
+            Write-Host "Excluding folder $($SubFolder.FullName)"
+        } elseif ($SubFolder -eq "$($BaseDirectory)Users") {
+            Write-Host "Excluding folder $($SubFolder.FullName)"
+        } elseif ($SubFolder -eq "$($BaseDirectory)Program Files") {
+            Write-Host "Excluding folder Program Files"
+        } elseif ($SubFolder -eq "$($BaseDirectory)Program Files (x86)") {
+            Write-Host "Excluding folder Program Files (x86)"
+        } else {
+            Write-Host "Getting size of folder $($SubFolder)"
+            
+            $bytes = PCDiag-GetGDUSizeInBytes -Path $SubFolder
+            $Results += @([PSCustomObject]@{
+                Folder  =   $SubFolder
+                Bytes   =   $bytes
+                MB      =   [math]::Round($bytes / 1MB, 2)
+                GB      =   [math]::Round($bytes / 1GB, 2)
+            })
+        }
+    }
+    $results | Sort-Object {$_.SizeGB}
+    return $results
+}
+
 function PCDIAG-GetLocalProfileSize {
     Write-Host "Scanning for local user profiles"
         $GetUserProfiles = Get-CimInstance Win32_UserProfile | where {$_.LocalPath -like "$($env:SystemDrive)\Users\*"} | select LocalPath, LastUseTime
