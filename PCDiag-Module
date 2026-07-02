@@ -1,0 +1,19 @@
+
+function PCDiag-GetGDUSizeInBytes {
+# Quickly provides file or folder size, in bytes
+# If not present, downloads gdu_windows_amd64.exe to C:\RTSupport\Utilities\GDU
+    param (
+        $Path
+    )
+    # Download GDU if not already there
+        $Dir = "C:\RTSupport\Utilities\GDU"
+        $Exe = "gdu_windows_amd64.exe"
+            if (!(gci "$($Dir)\$($Exe)" -ea SilentlyContinue)) {new-item $Dir -ItemType Directory -Force > $null
+                irm https://github.com/dundee/gdu/releases/download/v5.31.0/gdu_windows_amd64.exe.zip -OutFile "$($Dir)\$($Exe).zip"
+                Expand-Archive "$($Dir)\$($Exe).zip" "$($Dir)"; remove-item "$($Dir)\$($Exe).zip"
+            }
+    if (!(test-path $Path)) {return 0}
+    $gdu = iex "$($Dir)\$($Exe) -nps --no-prefix `"$($Path)`""
+    $bytes = $gdu.split(' ')[0]
+    return $bytes
+}
