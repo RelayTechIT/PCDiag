@@ -19,17 +19,21 @@ function PCDiag-GetGDUSizeInBytes {
 }
 
 function PCDIAG-GetLocalProfileSize {
-$GetUserProfiles = Get-CimInstance Win32_UserProfile | where {$_.LocalPath -like "$($env:SystemDrive)\Users\*"} | select LocalPath, LastUseTime
-foreach ($UserProfile in $GetUserProfiles) { 
-    $Bytes = (Get-ChildItem -Path $Profile.LocalPath -Recurse -File -ErrorAction SilentlyContinue | Measure-Object -Property Length -Sum).Sum
-    $LocalUserProfiles += @([PSCustomObject]@{
-        LocalPath   = $UserProfile.LocalPath
-        LastUsed    = $UserProfile.LastUseTime
-        Bytes       =   $Bytes
-        MB          =   [math]::Round($Bytes / 1MB,2)
-        GB          =   [math]::Round($Bytes / 1GB,2)
-    })
-}
+    Write-Host "Scanning for local user profiles"
+        $GetUserProfiles = Get-CimInstance Win32_UserProfile | where {$_.LocalPath -like "$($env:SystemDrive)\Users\*"} | select LocalPath, LastUseTime
+    Write-Host "    $($GetUserProfiles.count) local user profiles found"
+    $n=1
+    foreach ($UserProfile in $GetUserProfiles) { 
+        Write-Host "Profile $($n) of $($GetUserProfiles.count) - Getting profile size of $($UserProfile.LocalPath)"
+        $Bytes = (Get-ChildItem -Path $Profile.LocalPath -Recurse -File -ErrorAction SilentlyContinue | Measure-Object -Property Length -Sum).Sum
+        $LocalUserProfiles += @([PSCustomObject]@{
+            LocalPath   = $UserProfile.LocalPath
+            LastUsed    = $UserProfile.LastUseTime
+            Bytes       =   $Bytes
+            MB          =   [math]::Round($Bytes / 1MB,2)
+            GB          =   [math]::Round($Bytes / 1GB,2)
+        })
+    }
     $LocalUserProfiles | Format-Table
     return $LocalUserProfiles
 }
