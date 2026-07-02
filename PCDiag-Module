@@ -154,7 +154,7 @@ Function PCDiag-DiskCleanup {
         Write-Log "`n[2] Windows Update Download Cache"
         # Stop Windows Update service temporarily (only when not a dry run)
         if (-not $DryRun) {
-            Write-Log "  Stopping wuauserv & bits services..."
+            Write-Log "  Stopping wuauserv and bits services..."
             Stop-Service -Name wuauserv, bits -Force -ErrorAction SilentlyContinue
             Start-Sleep -Seconds 5
         }
@@ -163,7 +163,7 @@ Function PCDiag-DiskCleanup {
                                     -Description "Windows Update Downloads"
         
         if (-not $DryRun) {
-            Write-Log "  Restarting wuauserv & bits services..."
+            Write-Log "  Restarting wuauserv and bits services..."
             Start-Service -Name wuauserv, bits -ErrorAction SilentlyContinue
         }
         
