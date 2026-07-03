@@ -1,37 +1,34 @@
 function RT-Remediation-ResetPnPErroredDevices {
-# Finds all PnP Devices in an error state and resets them.
     try {
         Write-Host "Gathering all PnP Devices in an error state"
             $ErrorDevices = Get-PnpDevice | where {$_.Status -eq "Error"}
-
-        if ($ErrorDevices) {
-            Write-Host "$($ErrorDevices.count) devices detected in an error state"
-                $ErrorDevices
-            Write-Host "$($ErrorDevices.count) devices found with errors"
-                foreach ($Device in $ErrorDevices) {
-                    Write-Host "    Attempting repair of the following device:"
-                    Write-Host "        Name:       $($Device.FriendlyName)"
-                    Write-Host "        Class:      $($Device.Class)"
-                    Write-Host "        Status:     $($Device.Status)"
-                    Write-Host "        InstanceId: $($Device.InstanceId)"
-                pnputil /remove-device $Device.InstanceId    
-                    if ($LASTEXITCODE -ne 0) {
-                        throw "PNPUTIL: An error occurred attempting to remove this device"
-                    } else {
-                        Write-Host "PNPUTIL: Device Removed Successfully"
-                    }
-                pnputil /scan-devices
-                    if ($LASTEXITCODE -ne 0) {
-                        throw "PNPUTIL: An error occurred while scanning for devices"
-                    } else {
-                        Write-Host "PNPUTIL: Successfully scanned for new PnP devices"
-                    }
+    if ($ErrorDevices) {
+        Write-Host "$($ErrorDevices.count) devices detected in an error state"
+            $ErrorDevices
+        Write-Host "$($ErrorDevices.count) devices found with errors"
+            foreach ($Device in $ErrorDevices) {
+                Write-Host "    Attempting repair of the following device:"
+                Write-Host "        Name:       $($Device.FriendlyName)"
+                Write-Host "        Class:      $($Device.Class)"
+                Write-Host "        Status:     $($Device.Status)"
+                Write-Host "        InstanceId: $($Device.InstanceId)"
+            pnputil /remove-device $Device.InstanceId    
+                if ($LASTEXITCODE -ne 0) {
+                    throw "PNPUTIL: An error occurred attempting to remove this device"
+                } else {
+                    Write-Host "PNPUTIL: Device Removed Successfully"
                 }
+            pnputil /scan-devices
+                if ($LASTEXITCODE -ne 0) {
+                    throw "PNPUTIL: An error occurred while scanning for devices"
+                } else {
+                    Write-Host "PNPUTIL: Successfully scanned for new PnP devices"
+                }
+            }
         } else {
             Write-Host "No PnP Devices detected in an error state"
         }    
-
-        } catch {
-            Write-Host "An error has occurred: $($_)" -ForegroundColor Red
-        }
+    } catch {
+        Write-Host "An error has occurred: $($_)" -ForegroundColor Red
     }
+}
